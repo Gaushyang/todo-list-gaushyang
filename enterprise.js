@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 4. 品牌轉場遮罩 (Brand Reveal Transition)
   const brandReveal = document.querySelector('.brand-reveal');
+  const brandRevealStage = brandReveal?.querySelector('.brand-reveal-stage');
   let brandFrame = 0;
   const updateBrandReveal = () => {
     if (!brandReveal || reduceMotion) return;
@@ -82,7 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const progress = Math.min(1, Math.max(0, -rect.top / distance));
     const eased = 1 - Math.pow(1 - progress, 3);
     const maskOpacity = Math.min(1, progress / 0.22);
-    const wordScale = 1 + 27 * (1 - eased);
+    const stageWidth = brandRevealStage?.clientWidth || window.innerWidth;
+    const stageHeight = brandRevealStage?.clientHeight || window.innerHeight;
+    const mobileWordScale = Math.min(1, Math.max(0.34, (stageWidth / stageHeight) * 0.82));
+    const finalWordScale = stageWidth <= 768 ? mobileWordScale : 1;
+    const wordScale = finalWordScale + (28 - finalWordScale) * (1 - eased);
     const copyOpacity = Math.min(1, Math.max(0, (progress - 0.72) / 0.2));
     brandReveal.style.setProperty('--brand-mask-opacity', maskOpacity.toFixed(3));
     brandReveal.style.setProperty('--brand-word-scale', wordScale.toFixed(3));
