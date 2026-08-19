@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         contactSuccessView.querySelector('button')?.focus();
       } catch (error) {
         console.error(error);
-        contactSubmitStatus.textContent = '目前無法送出，請稍後再試或直接來信 service@gaushyang.com.tw。';
+        contactSubmitStatus.textContent = '目前無法送出，請稍後再試或直接來信 service@gaushyang.com。';
       } finally {
         contactNetlifySubmit.disabled = false;
         contactNetlifySubmit.innerHTML = '確認並送出 <span>→</span>';
