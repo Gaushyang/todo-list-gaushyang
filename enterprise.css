@@ -410,7 +410,7 @@ img {
 }
 
 .hero-media {
-  --hero-image: url("images/hero/background.webp");
+  --hero-image: url("images/hero/cape-of-good-hope.webp");
   background-color: var(--navy);
   background-image: var(--hero-image);
   background-size: cover;

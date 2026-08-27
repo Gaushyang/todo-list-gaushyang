@@ -53,11 +53,52 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 3. 英雄首頁背景（單圖模式）
+  // 3. 英雄首頁背景輪播（預載完成後每 6 秒切換）
   const hero = document.querySelector('.hero-media');
-  const heroImages = ['images/hero/background.webp'];
+  const heroImages = [
+    'images/hero/cape-of-good-hope.webp',
+    'images/hero/dadu-road.webp',
+    'images/hero/danshui-estuary.webp',
+    'images/hero/guo-xing.webp',
+    'images/hero/linyuan.webp',
+    'images/hero/mrt-tucheng.webp',
+    'images/hero/new-banqiao.webp',
+    'images/hero/no65.webp',
+    'images/hero/northeast-corner.webp',
+    'images/hero/opera-house.webp',
+    'images/hero/phase-7.webp',
+    'images/hero/pingzhen-system.webp',
+    'images/hero/special-zone.webp',
+    'images/hero/weiwuying.webp',
+    'images/hero/background.webp'
+  ];
+  let heroIndex = 0;
+
+  const preloadHeroImage = (src) => new Promise((resolve) => {
+    const image = new Image();
+    image.decoding = 'async';
+    image.onload = () => {
+      if (typeof image.decode === 'function') {
+        image.decode().catch(() => {}).finally(resolve);
+      } else {
+        resolve();
+      }
+    };
+    image.onerror = resolve;
+    image.src = src;
+  });
+
   if (hero) {
     hero.style.setProperty('--hero-image', `url("${heroImages[0]}")`);
+    if (!reduceMotion && heroImages.length > 1) {
+      Promise.all(heroImages.slice(1).map(preloadHeroImage)).then(() => {
+        setInterval(() => {
+          heroIndex = (heroIndex + 1) % heroImages.length;
+          hero.style.setProperty('--hero-image', `url("${heroImages[heroIndex]}")`);
+          hero.animate([{ opacity: 0.6 }, { opacity: 1 }], { duration: 800, easing: 'ease-in-out' });
+        }, 6000);
+      });
+    }
   }
 
   // 4. 品牌轉場遮罩 (Brand Reveal Transition)
