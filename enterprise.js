@@ -269,6 +269,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (contactDialog && contactForm) {
     const serviceInputs = [...contactForm.querySelectorAll('input[name="services"]')];
 
+    const resetContactSubmitButton = () => {
+      const arrowSpan = document.createElement('span');
+      arrowSpan.textContent = '→';
+      contactNetlifySubmit.replaceChildren('確認並送出 ', arrowSpan);
+    };
+
     const resetContactDialog = () => {
       contactForm.reset();
       contactFormView.hidden = false;
@@ -279,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
       contactReviewList.replaceChildren();
       contactSubmitStatus.textContent = '';
       contactNetlifySubmit.disabled = false;
-      contactNetlifySubmit.innerHTML = '確認並送出 <span>→</span>';
+      resetContactSubmitButton();
       document.body.classList.remove('contact-dialog-open');
     };
 
@@ -384,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         contactSubmitStatus.textContent = '目前無法送出，請稍後再試或直接來信 service@gaushyang.com。';
       } finally {
         contactNetlifySubmit.disabled = false;
-        contactNetlifySubmit.innerHTML = '確認並送出 <span>→</span>';
+        resetContactSubmitButton();
       }
     });
 
