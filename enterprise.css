@@ -411,7 +411,7 @@ img {
 
 .hero-media {
   background-color: var(--navy);
-  background-image: var(--hero-image);
+  background-image: var(--hero-image, url("images/hero/background.webp"));
   background-size: cover;
   background-position: center;
   transform: scale(1.02);

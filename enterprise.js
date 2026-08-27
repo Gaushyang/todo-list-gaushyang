@@ -53,23 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 3. 英雄首頁背景輪播 (Hero Background Slideshow)
+  // 3. 英雄首頁背景（單圖模式）
   const hero = document.querySelector('.hero-media');
-  const heroImages = [
-    'background-image/dadu road.png',
-    'background-image/mrt tucheng.png',
-    'background-image/weiwuying.png'
-  ];
-  let heroIndex = 0;
+  const heroImages = ['images/hero/background.webp'];
   if (hero) {
     hero.style.setProperty('--hero-image', `url("${heroImages[0]}")`);
-    if (!reduceMotion) {
-      setInterval(() => {
-        heroIndex = (heroIndex + 1) % heroImages.length;
-        hero.style.setProperty('--hero-image', `url("${heroImages[heroIndex]}")`);
-        hero.animate([{ opacity: 0.6 }, { opacity: 1 }], { duration: 800, easing: 'ease-in-out' });
-      }, 6000);
-    }
   }
 
   // 4. 品牌轉場遮罩 (Brand Reveal Transition)
