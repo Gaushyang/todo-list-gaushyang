@@ -1,3 +1,6 @@
 .git/
 *.pack
 .agents/
+
+# Local Netlify folder
+.netlify
