@@ -92,10 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
     hero.style.setProperty('--hero-image', `url("${heroImages[0]}")`);
     if (!reduceMotion && heroImages.length > 1) {
       Promise.all(heroImages.slice(1).map(preloadHeroImage)).then(() => {
-        setInterval(() => {
-          heroIndex = (heroIndex + 1) % heroImages.length;
+        const heroTimer = setInterval(() => {
+          heroIndex += 1;
           hero.style.setProperty('--hero-image', `url("${heroImages[heroIndex]}")`);
           hero.animate([{ opacity: 0.6 }, { opacity: 1 }], { duration: 800, easing: 'ease-in-out' });
+          if (heroIndex === heroImages.length - 1) clearInterval(heroTimer);
         }, 6000);
       });
     }
