@@ -14,7 +14,7 @@
 
 ## 2. 版本控制 (Git 工作流)
 
-本專案已連結至 GitHub 倉庫 (Carlos-Hsu/todo-list-gaushyang)。
+本專案已連結至 GitHub 倉庫 (Gaushyang/website-gaushyang)。
 
 **日常開發流程：**
 
