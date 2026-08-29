@@ -154,12 +154,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let particleVisible = false;
     let lastParticleRender = 0;
     let particleColumns = 1;
-    const frameInterval = 1000 / 30;
+    const limitedDevice = (navigator.hardwareConcurrency || 4) <= 4 || (navigator.deviceMemory || 8) <= 4;
+    const frameInterval = 1000 / (limitedDevice ? 24 : 30);
 
     const createParticles = () => {
       const mobile = canvasWidth < 768;
-      const rows = mobile ? 30 : 56;
-      const columns = mobile ? 60 : 112;
+      const rows = mobile ? 18 : (limitedDevice ? 26 : 34);
+      const columns = mobile ? 36 : (limitedDevice ? 52 : 72);
       particleColumns = columns;
       particles = [];
       for (let row = 0; row < rows; row += 1) {
@@ -171,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
             jitterX: Math.random() - 0.5,
             jitterY: Math.random() - 0.5,
             brightness: 0.82 + Math.random() * 0.18,
-            size: 0.35 + Math.random() * 1.05
+            size: 0.55 + Math.random() * 1.25
           });
         }
       }
@@ -179,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const resizeBrandCanvas = () => {
       const rect = brandRevealStage.getBoundingClientRect();
-      const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+      const ratio = Math.min(window.devicePixelRatio || 1, rect.width < 768 ? 1 : 1.25);
       canvasWidth = Math.max(1, rect.width);
       canvasHeight = Math.max(1, rect.height);
       brandCanvas.width = Math.round(canvasWidth * ratio);
@@ -206,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const time = timestamp * 0.00032;
       const horizon = canvasHeight * 0.4;
 
-      particles.forEach(point => {
+      particles.forEach((point, index) => {
         const depth = 0.12 + point.v * 0.88;
         const perspective = 0.22 + depth * 0.78;
         const columnSpacing = canvasWidth / Math.max(1, particleColumns - 1);
@@ -225,8 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
         context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2);
         context.fillStyle = `rgba(${red}, ${green}, 255, ${alpha})`;
+        const luminousCrest = crestStrength > 0.72 && index % 3 === 0;
         context.shadowColor = point.u > 0.48 ? '#42dcff' : '#51c6ff';
-        context.shadowBlur = (perspective > 0.68 ? 10 : 4) + crestStrength * 12;
+        context.shadowBlur = luminousCrest ? 9 : 0;
         context.fill();
       });
       context.shadowBlur = 0;
