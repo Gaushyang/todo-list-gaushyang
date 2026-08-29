@@ -111,16 +111,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const rect = brandReveal.getBoundingClientRect();
     const distance = Math.max(1, brandReveal.offsetHeight - window.innerHeight);
     const progress = Math.min(1, Math.max(0, -rect.top / distance));
-    const eased = 1 - Math.pow(1 - progress, 3);
-    const maskOpacity = Math.min(1, progress / 0.22);
+    const scaleProgress = Math.min(1, progress / 0.5);
+    const eased = 1 - Math.pow(1 - scaleProgress, 3);
+    const maskOpacity = Math.min(1, progress / 0.16);
     const stageWidth = brandRevealStage?.clientWidth || window.innerWidth;
     const stageHeight = brandRevealStage?.clientHeight || window.innerHeight;
     const mobileWordScale = Math.min(1, Math.max(0.34, (stageWidth / stageHeight) * 0.82));
     const finalWordScale = stageWidth <= 768 ? mobileWordScale : 1;
     const wordScale = finalWordScale + (28 - finalWordScale) * (1 - eased);
-    const copyOpacity = Math.min(1, Math.max(0, (progress - 0.72) / 0.2));
+    const glowIn = Math.min(1, Math.max(0, (progress - 0.18) / 0.2));
+    const glowOut = 1 - Math.min(1, Math.max(0, (progress - 0.64) / 0.14));
+    const wordGlow = maskOpacity * (0.22 + glowIn * glowOut * 0.78);
+    const copyOpacity = Math.min(1, Math.max(0, (progress - 0.82) / 0.14));
+    const particleFocus = Math.min(1, Math.max(0, (progress - 0.22) / 0.2));
+    const particleFade = Math.min(1, Math.max(0, (progress - 0.78) / 0.1));
+    const particleOpacity = 0.7 + particleFocus * 0.3 - particleFade * 0.58;
+    const shadeOpacity = 0.86 + wordGlow * 0.14;
     brandReveal.style.setProperty('--brand-mask-opacity', maskOpacity.toFixed(3));
     brandReveal.style.setProperty('--brand-word-scale', wordScale.toFixed(3));
+    brandReveal.style.setProperty('--brand-word-glow', wordGlow.toFixed(3));
+    brandReveal.style.setProperty('--brand-particle-opacity', particleOpacity.toFixed(3));
+    brandReveal.style.setProperty('--brand-shade-opacity', shadeOpacity.toFixed(3));
     brandReveal.style.setProperty('--brand-copy-opacity', copyOpacity.toFixed(3));
     brandFrame = 0;
   };
@@ -131,23 +142,117 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', requestBrandReveal, { passive: true });
   window.addEventListener('resize', requestBrandReveal, { passive: true });
 
-  const brandVideo = brandReveal?.querySelector('.brand-reveal-video');
-  if (brandVideo instanceof HTMLVideoElement) {
-    let brandVideoVisible = false;
-    const syncBrandVideo = () => {
-      if (!reduceMotion && brandVideoVisible && !document.hidden) {
-        brandVideo.play().catch(() => {});
-      } else {
-        brandVideo.pause();
+  // 5G 粒子訊號場：透視投影、波形流動與輕微指標視差。
+  const brandCanvas = brandReveal?.querySelector('.brand-signal-canvas');
+  if (brandCanvas instanceof HTMLCanvasElement && brandReveal && !reduceMotion) {
+    const context = brandCanvas.getContext('2d');
+    const pointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    let particles = [];
+    let canvasWidth = 0;
+    let canvasHeight = 0;
+    let particleFrame = 0;
+    let particleVisible = false;
+    let lastParticleRender = 0;
+    let particleColumns = 1;
+    const frameInterval = 1000 / 30;
+
+    const createParticles = () => {
+      const mobile = canvasWidth < 768;
+      const rows = mobile ? 30 : 56;
+      const columns = mobile ? 60 : 112;
+      particleColumns = columns;
+      particles = [];
+      for (let row = 0; row < rows; row += 1) {
+        for (let column = 0; column < columns; column += 1) {
+          particles.push({
+            u: column / Math.max(1, columns - 1),
+            v: row / Math.max(1, rows - 1),
+            phase: Math.random() * Math.PI * 2,
+            jitterX: Math.random() - 0.5,
+            jitterY: Math.random() - 0.5,
+            brightness: 0.82 + Math.random() * 0.18,
+            size: 0.35 + Math.random() * 1.05
+          });
+        }
       }
     };
-    brandVideo.pause();
-    const brandVideoObserver = new IntersectionObserver(entries => {
-      brandVideoVisible = entries[0].isIntersecting;
-      syncBrandVideo();
-    }, { rootMargin: '160px 0px', threshold: 0 });
-    brandVideoObserver.observe(brandReveal);
-    document.addEventListener('visibilitychange', syncBrandVideo);
+
+    const resizeBrandCanvas = () => {
+      const rect = brandRevealStage.getBoundingClientRect();
+      const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvasWidth = Math.max(1, rect.width);
+      canvasHeight = Math.max(1, rect.height);
+      brandCanvas.width = Math.round(canvasWidth * ratio);
+      brandCanvas.height = Math.round(canvasHeight * ratio);
+      brandCanvas.style.width = `${canvasWidth}px`;
+      brandCanvas.style.height = `${canvasHeight}px`;
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      createParticles();
+    };
+
+    const renderParticles = timestamp => {
+      if (!particleVisible || document.hidden) {
+        particleFrame = 0;
+        return;
+      }
+      if (lastParticleRender && timestamp - lastParticleRender < frameInterval) {
+        particleFrame = requestAnimationFrame(renderParticles);
+        return;
+      }
+      lastParticleRender = timestamp;
+      pointer.x += (pointer.targetX - pointer.x) * 0.035;
+      pointer.y += (pointer.targetY - pointer.y) * 0.035;
+      context.clearRect(0, 0, canvasWidth, canvasHeight);
+      const time = timestamp * 0.00032;
+      const horizon = canvasHeight * 0.4;
+
+      particles.forEach(point => {
+        const depth = 0.12 + point.v * 0.88;
+        const perspective = 0.22 + depth * 0.78;
+        const columnSpacing = canvasWidth / Math.max(1, particleColumns - 1);
+        const horizontalDrift = Math.sin(time * 1.7 + point.v * 7) * canvasWidth * 0.01;
+        const x = point.u * canvasWidth + point.jitterX * columnSpacing * 0.9 + horizontalDrift + pointer.x * depth * 8;
+        const mainWave = Math.sin(point.u * 11.5 - time * 4.6 + point.v * 4.5) * canvasHeight * (0.022 + depth * 0.055);
+        const rollingWave = Math.sin(point.u * 5.2 + time * 2.2 - point.v * 10) * canvasHeight * 0.028;
+        const crestStrength = Math.pow(Math.max(0, Math.sin(point.u * 7.4 - time * 3.4 + point.v * 2.7)), 6);
+        const crest = crestStrength * canvasHeight * 0.044;
+        const surfaceJitter = point.jitterY * canvasHeight * (0.006 + depth * 0.012);
+        const y = horizon + point.v * canvasHeight * 0.56 + mainWave + rollingWave - crest + surfaceJitter + pointer.y * depth * 5;
+        const alpha = Math.min(0.98, (0.2 + perspective * 0.58 + crestStrength * 0.3) * point.brightness);
+        const radius = point.size * (0.42 + perspective * 2.45);
+        const red = Math.round(34 * (1 - point.u));
+        const green = Math.round(190 + point.u * 45 + crestStrength * 18);
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2);
+        context.fillStyle = `rgba(${red}, ${green}, 255, ${alpha})`;
+        context.shadowColor = point.u > 0.48 ? '#42dcff' : '#51c6ff';
+        context.shadowBlur = (perspective > 0.68 ? 10 : 4) + crestStrength * 12;
+        context.fill();
+      });
+      context.shadowBlur = 0;
+      particleFrame = requestAnimationFrame(renderParticles);
+    };
+
+    const startParticles = () => {
+      if (!particleFrame && particleVisible && !document.hidden) particleFrame = requestAnimationFrame(renderParticles);
+    };
+    const particleObserver = new IntersectionObserver(entries => {
+      particleVisible = entries[0].isIntersecting;
+      if (particleVisible) startParticles();
+    }, { rootMargin: '120px 0px', threshold: 0 });
+    particleObserver.observe(brandReveal);
+    brandRevealStage.addEventListener('pointermove', event => {
+      const rect = brandRevealStage.getBoundingClientRect();
+      pointer.targetX = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+      pointer.targetY = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+    }, { passive: true });
+    brandRevealStage.addEventListener('pointerleave', () => {
+      pointer.targetX = 0;
+      pointer.targetY = 0;
+    }, { passive: true });
+    window.addEventListener('resize', resizeBrandCanvas);
+    document.addEventListener('visibilitychange', startParticles);
+    resizeBrandCanvas();
   }
 
   // 5. 滾動進場淡入效果 (Scroll Reveal Observer)
