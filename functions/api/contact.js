@@ -32,7 +32,8 @@ const escapeHtml = value => String(value)
 const clean = (form, key) => String(form.get(key) || '').trim();
 
 export const onRequestPost = async ({ request, env }) => {
-  if (!env.TURNSTILE_SECRET_KEY || !env.RESEND_API_KEY || !env.CONTACT_TO_EMAIL || !env.CONTACT_FROM_EMAIL) {
+  const contactToEmail = env.CONTACT_TEMP_TO_EMAIL || env.CONTACT_TO_EMAIL;
+  if (!env.TURNSTILE_SECRET_KEY || !env.RESEND_API_KEY || !contactToEmail || !env.CONTACT_FROM_EMAIL) {
     return json({ error: '聯絡服務尚未完成設定，請直接來信 service@gaushyang.com。' }, 503);
   }
 
@@ -95,7 +96,7 @@ export const onRequestPost = async ({ request, env }) => {
     },
     body: JSON.stringify({
       from: env.CONTACT_FROM_EMAIL,
-      to: [env.CONTACT_TO_EMAIL],
+      to: [contactToEmail],
       subject: `高祥電信網站新需求｜${fields.name}`,
       html,
       ...(fields.email ? { reply_to: fields.email } : {})
