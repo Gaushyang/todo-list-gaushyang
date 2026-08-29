@@ -540,6 +540,7 @@ img {
 .brand-reveal-video {
   object-fit: cover;
   z-index: 0;
+  border: 0;
   filter: brightness(1.03) saturate(0.9) contrast(1.06);
 }
 
@@ -1917,7 +1918,7 @@ img {
   color: var(--cyan);
 }
 
-/* 對話框與詢價表單 (Dialog & Netlify Form) */
+/* 對話框與詢價表單 */
 .contact-dialog {
   width: min(800px, calc(100% - 32px));
   max-height: calc(100dvh - 32px);
@@ -2255,6 +2256,11 @@ img {
   clip: rect(0, 0, 0, 0) !important;
   white-space: nowrap !important;
   border: 0 !important;
+}
+
+.contact-turnstile {
+  min-height: 65px;
+  margin-top: 16px;
 }
 
 .contact-submit-status {

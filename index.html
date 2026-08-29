@@ -6,21 +6,21 @@
   <title>高祥電信股份有限公司｜電信工程・5G基地台建設・網路優化・衛星通訊</title>
   <meta name="description" content="高祥電信深耕台灣通訊工程逾 38 年，專注 4G/5G 基地台建設、C-RAN 集中式機房、室內涵蓋系統、低軌衛星終端整合及全台通訊維運。具備電信級規範與完整工安制度。">
   <meta name="keywords" content="高祥電信,基地台建設,5G網路優化,室內涵蓋,C-RAN施工,低軌衛星,OneWeb,電信工程,通訊系統整合">
-  <link rel="canonical" href="https://gaushyang.netlify.app/">
+  <link rel="canonical" href="https://todo-list-gaushyang.pages.dev/">
 
   <!-- Open Graph / Facebook / LINE -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://gaushyang.netlify.app/">
+  <meta property="og:url" content="https://todo-list-gaushyang.pages.dev/">
   <meta property="og:title" content="高祥電信股份有限公司｜電信工程・5G基地台建設・網路優化・衛星通訊">
   <meta property="og:description" content="深耕台灣通訊工程逾 38 年，整合現勘、施工、測試至驗收，以電信級標準打造穩定可靠的關鍵通訊基礎設施。">
-  <meta property="og:image" content="https://gaushyang.netlify.app/images/gaushyang-ai-park.jpg">
+  <meta property="og:image" content="https://todo-list-gaushyang.pages.dev/images/gaushyang-ai-park.jpg">
   <meta property="og:locale" content="zh_TW">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="高祥電信股份有限公司｜讓關鍵通訊，持續連線">
   <meta name="twitter:description" content="逾 38 年通訊工程實績，提供 4G/5G 基地台建設、網路優化、室內涵蓋與低軌衛星整合服務。">
-  <meta name="twitter:image" content="https://gaushyang.netlify.app/images/gaushyang-ai-park.jpg">
+  <meta name="twitter:image" content="https://todo-list-gaushyang.pages.dev/images/gaushyang-ai-park.jpg">
 
   <link rel="icon" href="images/gaushyang-logo.jpg" type="image/jpeg">
   <link rel="preload" as="image" href="images/hero/cape-of-good-hope.webp" type="image/webp" fetchpriority="high">
@@ -28,6 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="enterprise.css?v=20260818-logo-nokia">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 
   <!-- JSON-LD 結構化資料 -->
   <script type="application/ld+json">
@@ -36,9 +37,9 @@
     "@type": "Corporation",
     "name": "高祥電信股份有限公司",
     "alternateName": "Gaushyang Telecom Co., Ltd.",
-    "url": "https://gaushyang.netlify.app/",
-    "logo": "https://gaushyang.netlify.app/images/gaushyang-logo.jpg",
-    "image": "https://gaushyang.netlify.app/images/gaushyang-ai-park.jpg",
+    "url": "https://todo-list-gaushyang.pages.dev/",
+    "logo": "https://todo-list-gaushyang.pages.dev/images/gaushyang-logo.jpg",
+    "image": "https://todo-list-gaushyang.pages.dev/images/gaushyang-ai-park.jpg",
     "description": "專業通訊工程服務商，深耕台灣逾 38 年，專注行動通訊基地台、5G 優化、室內涵蓋與衛星通訊整合。",
     "address": {
       "@type": "PostalAddress",
@@ -125,9 +126,14 @@
     <!-- 品牌影片與視覺轉場 (Brand Reveal) -->
     <section class="brand-reveal" aria-label="高祥電信品牌轉場">
       <div class="brand-reveal-stage">
-        <video class="brand-reveal-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
-          <source src="Top enterprise use cases for 5G small cell neutral host.mp4" type="video/mp4">
-        </video>
+        <iframe
+          class="brand-reveal-video"
+          src="https://www.youtube-nocookie.com/embed/ZGrRtllf1AM?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=ZGrRtllf1AM&amp;controls=0&amp;playsinline=1"
+          title="5G small cell neutral host 應用影片"
+          loading="lazy"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen></iframe>
         <div class="brand-reveal-shade"></div>
         <svg class="brand-reveal-mask" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
@@ -786,7 +792,7 @@
     </section>
   </main>
 
-  <!-- 詢價與現場會勘對話框 (Contact Dialog with Netlify Forms) -->
+  <!-- 詢價與現場會勘對話框 -->
   <!-- OneWeb 低軌衛星專案照片瀏覽器 -->
   <dialog id="oneweb-gallery-dialog" class="gallery-dialog" data-gallery-dialog aria-labelledby="oneweb-gallery-title">
     <div class="gallery-dialog-shell">
@@ -854,9 +860,7 @@
         <p>請填寫您的工程需求與場域資訊，送出前您可確認內容，專業工程顧問將於 1 個工作天內主動聯繫。</p>
       </header>
 
-      <form id="contact-request-form" class="contact-request-form" name="project-inquiry" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
-        <input type="hidden" name="form-name" value="project-inquiry">
-        <input type="hidden" name="subject" data-remove-prefix value="高祥電信網站新需求｜%{submissionId}">
+      <form id="contact-request-form" class="contact-request-form" name="project-inquiry" method="POST" novalidate>
 
         <!-- 蜜罐防機器人欄位 -->
         <p class="contact-honeypot" aria-hidden="true">
@@ -897,6 +901,8 @@
             <input type="checkbox" name="consent" required>
             <span>我已閱讀並同意<button type="button" class="privacy-trigger-btn" id="open-privacy-link">個人資料蒐集告知與隱私權條款</button>，並同意將以上資料用於本次業務諮詢與現場會勘聯繫。</span>
           </label>
+          <div id="contact-turnstile" class="contact-turnstile" aria-label="安全驗證"></div>
+          <p id="contact-turnstile-error" class="contact-form-error" hidden>請先完成安全驗證。</p>
 
           <div class="contact-dialog-actions">
             <button class="contact-secondary-button" type="button" data-dialog-close>取消</button>
@@ -914,11 +920,11 @@
             </div>
           </div>
           <dl id="contact-review-list" class="contact-review-list"></dl>
-          <p class="contact-mail-note">資料將透過 Netlify Forms 安全加密傳送。通知信由系統自動分派至專案負責團隊。</p>
+          <p class="contact-mail-note">資料將透過安全連線送交高祥電信工程團隊。</p>
           <p id="contact-submit-status" class="contact-submit-status" role="status" aria-live="polite"></p>
           <div class="contact-dialog-actions">
             <button id="contact-review-edit" class="contact-secondary-button" type="button">返回修改</button>
-            <button id="contact-netlify-submit" class="contact-primary-button" type="button">確認並送出 <span>→</span></button>
+            <button id="contact-submit" class="contact-primary-button" type="button">確認並送出 <span>→</span></button>
           </div>
         </div>
 

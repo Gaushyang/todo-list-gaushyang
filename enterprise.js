@@ -290,11 +290,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const contactReviewView = document.getElementById('contact-review-view');
   const contactReviewList = document.getElementById('contact-review-list');
   const contactReviewEdit = document.getElementById('contact-review-edit');
-  const contactNetlifySubmit = document.getElementById('contact-netlify-submit');
+  const contactSubmit = document.getElementById('contact-submit');
   const contactSubmitStatus = document.getElementById('contact-submit-status');
   const contactSuccessView = document.getElementById('contact-success-view');
   const contactServiceError = document.getElementById('contact-service-error');
   const contactChannelError = document.getElementById('contact-channel-error');
+  const contactTurnstileError = document.getElementById('contact-turnstile-error');
 
   if (contactDialog && contactForm) {
     const serviceInputs = [...contactForm.querySelectorAll('input[name="services"]')];
@@ -302,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetContactSubmitButton = () => {
       const arrowSpan = document.createElement('span');
       arrowSpan.textContent = '→';
-      contactNetlifySubmit.replaceChildren('確認並送出 ', arrowSpan);
+      contactSubmit.replaceChildren('確認並送出 ', arrowSpan);
     };
 
     const resetContactDialog = () => {
@@ -314,9 +315,10 @@ document.addEventListener('DOMContentLoaded', () => {
       contactChannelError.hidden = true;
       contactReviewList.replaceChildren();
       contactSubmitStatus.textContent = '';
-      contactNetlifySubmit.disabled = false;
+      contactSubmit.disabled = false;
       resetContactSubmitButton();
       document.body.classList.remove('contact-dialog-open');
+      if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
     };
 
     const openContactDialog = () => {
@@ -368,6 +370,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       if (!contactForm.reportValidity()) return;
+      if (!contactForm.elements['cf-turnstile-response']?.value) {
+        contactTurnstileError.hidden = false;
+        document.getElementById('contact-turnstile')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
 
       const formData = new FormData(contactForm);
       const details = [
@@ -392,34 +399,61 @@ document.addEventListener('DOMContentLoaded', () => {
       contactFormView.hidden = true;
       contactReviewView.hidden = false;
       contactDialog.scrollTop = 0;
-      contactNetlifySubmit.focus();
+      contactSubmit.focus();
     });
 
-    contactNetlifySubmit.addEventListener('click', async () => {
+    let turnstileWidgetId = null;
+    const initializeTurnstile = async () => {
+      try {
+        const response = await fetch('/api/config', { headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error(`Config request failed: ${response.status}`);
+        const { turnstileSiteKey } = await response.json();
+        if (!turnstileSiteKey) throw new Error('Turnstile site key is unavailable');
+        const renderWidget = () => {
+          turnstileWidgetId = window.turnstile.render('#contact-turnstile', {
+            sitekey: turnstileSiteKey,
+            callback: () => { contactTurnstileError.hidden = true; },
+            'expired-callback': () => { contactTurnstileError.hidden = false; },
+            'error-callback': () => { contactTurnstileError.hidden = false; }
+          });
+        };
+        if (window.turnstile) renderWidget();
+        else window.addEventListener('load', renderWidget, { once: true });
+      } catch (error) {
+        console.error(error);
+        contactTurnstileError.textContent = '安全驗證暫時無法載入，請稍後再試。';
+        contactTurnstileError.hidden = false;
+      }
+    };
+    initializeTurnstile();
+
+    contactSubmit.addEventListener('click', async () => {
       if (window.location.protocol === 'file:') {
-        contactSubmitStatus.textContent = '本機預覽模式下不會送出資料；部署至 Netlify 後即可進行正式收單測試。';
+        contactSubmitStatus.textContent = '本機預覽模式下不會送出資料；部署至 Cloudflare Pages 後即可測試。';
         return;
       }
       contactSubmitStatus.textContent = '資料送出中，請稍候…';
-      contactNetlifySubmit.disabled = true;
-      contactNetlifySubmit.textContent = '送出中…';
+      contactSubmit.disabled = true;
+      contactSubmit.textContent = '送出中…';
       try {
         const submissionData = new FormData(contactForm);
-        const response = await fetch('/', {
+        const response = await fetch('/api/contact', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams(submissionData).toString()
+          headers: { Accept: 'application/json' },
+          body: submissionData
         });
-        if (!response.ok) throw new Error(`Netlify form submission failed: ${response.status}`);
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || `Contact submission failed: ${response.status}`);
         contactReviewView.hidden = true;
         contactSuccessView.hidden = false;
         contactDialog.scrollTop = 0;
         contactSuccessView.querySelector('button')?.focus();
       } catch (error) {
         console.error(error);
-        contactSubmitStatus.textContent = '目前無法送出，請稍後再試或直接來信 service@gaushyang.com。';
+        contactSubmitStatus.textContent = error.message || '目前無法送出，請稍後再試或直接來信 service@gaushyang.com。';
+        if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
       } finally {
-        contactNetlifySubmit.disabled = false;
+        contactSubmit.disabled = false;
         resetContactSubmitButton();
       }
     });

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gaushyang.netlify.app/sitemap.xml
+Sitemap: https://todo-list-gaushyang.pages.dev/sitemap.xml
