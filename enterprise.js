@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', requestBrandReveal, { passive: true });
 
   const brandVideo = brandReveal?.querySelector('.brand-reveal-video');
-  if (brandVideo) {
+  if (brandVideo instanceof HTMLVideoElement) {
     let brandVideoVisible = false;
     const syncBrandVideo = () => {
       if (!reduceMotion && brandVideoVisible && !document.hidden) {
